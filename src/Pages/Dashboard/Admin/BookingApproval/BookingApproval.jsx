@@ -4,12 +4,10 @@ import useAxiosPublic from "../../../../hooks/useAxiosPublic";
 import Loading from "../../../../Component/Loading/Loading";
 import Swal from "sweetalert2";
 import { format } from "date-fns";
-import { useNavigate } from "react-router";
 
 const BookingApproval = () => {
   const axiosPublic = useAxiosPublic();
   const queryClient = useQueryClient();
-  const navigate = useNavigate()
 
   // Fetch pending bookings
   const { data: bookings = [], isLoading } = useQuery({
@@ -51,18 +49,15 @@ const BookingApproval = () => {
   });
 
   const handleApprove = (id) => {
-
-    navigate(`/dashboard/payment-page/${id}`)
-    
-    // Swal.fire({
-    //   title: "Approve Booking?",
-    //   icon: "question",
-    //   showCancelButton: true,
-    //   confirmButtonText: "Yes, approve",
-    //   cancelButtonText: "Cancel",
-    // }).then((res) => {
-    //   if (res.isConfirmed) approveMutation.mutate(id);
-    // });
+    Swal.fire({
+      title: "Approve Booking?",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Yes, approve",
+      cancelButtonText: "Cancel",
+    }).then((res) => {
+      if (res.isConfirmed) approveMutation.mutate(id);
+    });
   };
 
   const handleReject = (id) => {
