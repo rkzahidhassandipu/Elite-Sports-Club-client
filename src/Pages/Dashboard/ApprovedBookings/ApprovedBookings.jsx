@@ -13,19 +13,17 @@ const ApprovedBookings = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
-  // Fetch approved bookings
+  // ✅ Fetch approved bookings using correct endpoint
   const { data: bookings = [], isLoading } = useQuery({
     queryKey: ["approved-bookings", user?.email],
     queryFn: async () => {
-      const res = await axiosPublic.get(
-        `/bookings?email=${user?.email}&status=approved`
-      );
+      const res = await axiosPublic.get(`approved?email=${user?.email}`);
       return res.data;
     },
     enabled: !!user?.email,
   });
 
-  // Cancel booking
+  // ✅ Cancel booking
   const cancelBookingMutation = useMutation({
     mutationFn: async (id) => {
       const res = await axiosPublic.delete(`/bookings/${id}`);
@@ -78,7 +76,7 @@ const ApprovedBookings = () => {
             className="bg-[#1f1b45] text-white p-6 rounded-xl shadow border border-white/10 hover:shadow-lg transition"
           >
             <h3 className="text-xl font-semibold text-purple-400 mb-2">
-              {booking.courtName || "Court"}
+              {booking.name || "Court"}
             </h3>
 
             <div className="space-y-1 text-sm">

@@ -172,7 +172,7 @@ const CheckoutForm = () => {
           <label className="block font-medium mb-1">Court Type</label>
           <input
             type="text"
-            value={booking.courtName || "N/A"}
+            value={booking.name || "N/A"}
             readOnly
             className="w-full px-3 py-2 rounded bg-white/10 border border-white/20 text-white"
           />
