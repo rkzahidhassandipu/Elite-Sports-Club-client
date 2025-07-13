@@ -16,7 +16,7 @@ const PendingBookings = () => {
   const { data: bookings = [], isLoading } = useQuery({
     queryKey: ["pending-bookings", user?.email],
     queryFn: async () => {
-      const res = await axiosPublic.get(`/bookings?email=${user?.email}`);
+      const res = await axiosPublic.get(`bookings?email=${user?.email}`);
       return res.data;
     },
     enabled: !!user?.email,

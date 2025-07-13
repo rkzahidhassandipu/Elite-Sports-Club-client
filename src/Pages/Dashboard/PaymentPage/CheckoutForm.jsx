@@ -48,6 +48,26 @@ const CheckoutForm = () => {
       id,
     });
 
+    const clientSecret = res.data.clientSecret;
+
+    const result = await stripe.confirmCardPayment(clientSecret, {
+      payment_method: {
+        card: elements.getElement(CardElement),
+        billing_details: {
+          name: 'raihan uddin'
+        }
+      }
+    });
+
+    if(result.error){
+      console.log(result.error.message)
+    }
+    else{
+      if(result.paymentIntent.status === "succeeded"){
+        console.log('payment succeeded')
+      }
+    }
+
     console.log(res.data); // Should contain clientSecret
   };
 
