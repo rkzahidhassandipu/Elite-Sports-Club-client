@@ -18,6 +18,7 @@ const CheckoutForm = () => {
   const [coupon, setCoupon] = useState("");
   const [discountInfo, setDiscountInfo] = useState(null);
 
+  // Get booking by ID
   const { isPending, data: booking = {} } = useQuery({
     queryKey: ["booking", id],
     queryFn: async () => {
@@ -32,9 +33,9 @@ const CheckoutForm = () => {
     discountInfo?.type === "percentage"
       ? (originalPrice * discountInfo.discount) / 100
       : discountInfo?.discount || 0;
-
   const discountedPrice = Math.max(originalPrice - discountAmount, 0);
 
+  // Validate coupon
   const handleApplyCoupon = async () => {
     try {
       const res = await axiosPublic.get(`/coupons/validate?code=${coupon}`);
@@ -45,6 +46,7 @@ const CheckoutForm = () => {
     }
   };
 
+  // Stripe Payment
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!stripe || !elements || !discountedPrice) return;
@@ -54,13 +56,13 @@ const CheckoutForm = () => {
 
     setProcessing(true);
 
-    const { error, paymentMethod } = await stripe.createPaymentMethod({
+    const { error: stripeError, paymentMethod } = await stripe.createPaymentMethod({
       type: "card",
       card,
     });
 
-    if (error) {
-      setError(error.message);
+    if (stripeError) {
+      setError(stripeError.message);
       setProcessing(false);
       return;
     }
@@ -68,6 +70,7 @@ const CheckoutForm = () => {
     setError(null);
 
     try {
+      // Create payment intent
       const res = await axiosPublic.post("payments/create-payment-intent", {
         totalPrice: discountedPrice,
         id,
@@ -79,7 +82,7 @@ const CheckoutForm = () => {
         payment_method: {
           card: card,
           billing_details: {
-            name: booking?.userEmail || "Anonymous",
+            name: user?.displayName || booking.userEmail || "Anonymous",
           },
         },
       });
@@ -90,15 +93,19 @@ const CheckoutForm = () => {
         const transactionId = result.paymentIntent.id;
         setPaymentSuccess(true);
 
+        // Save payment to DB
         await axiosPublic.post("/payments/save", {
           name: user?.displayName || "Anonymous",
           bookingId: booking._id,
           userEmail: booking.userEmail,
           transactionId,
           totalPrice: discountedPrice,
-          courtType: booking.courtType,
+          courtType: booking.courtType || "Court",
+          couponCode: discountInfo?.code || null,
+          discountAmount: discountAmount || 0,
         });
 
+        // Update booking status to confirmed
         await axiosPublic.patch(`/bookings/confirm/${id}`, {
           transactionId,
         });
@@ -125,6 +132,7 @@ const CheckoutForm = () => {
       </h2>
 
       <div className="space-y-4 text-sm text-white">
+        {/* Coupon Input */}
         <div className="flex gap-2 items-center">
           <input
             type="text"
@@ -142,12 +150,14 @@ const CheckoutForm = () => {
           </button>
         </div>
 
+        {/* Discount Message */}
         {discountInfo && (
           <p className="text-green-300 text-sm">
             Coupon "{discountInfo.code}" applied. You saved RM {discountAmount.toFixed(2)}!
           </p>
         )}
 
+        {/* Booking Info */}
         <div>
           <label className="block font-medium mb-1">Email</label>
           <input
@@ -203,11 +213,10 @@ const CheckoutForm = () => {
         </div>
       </div>
 
-
+      {/* Stripe Payment Card Input */}
       <div className="mt-6">
         <CardElement className="mb-4 border p-3 rounded bg-white text-black" />
         {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
-
 
         <button
           type="submit"

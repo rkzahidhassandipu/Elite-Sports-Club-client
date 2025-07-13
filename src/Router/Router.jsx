@@ -18,6 +18,7 @@ import ManageCourts from "../Pages/Dashboard/Admin/ManageCourts/ManageCourts";
 import ManageBookings from "../Pages/Dashboard/Admin/ManageBookings/ManageBookings";
 import MakeAnnouncement from "../Pages/Dashboard/Admin/MakeAnnouncement/MakeAnnouncement";
 import ManageCoupons from "../Pages/Dashboard/Admin/ManageCoupons/ManageCoupons";
+import Announcements from "../Pages/Dashboard/Announcements/Announcements";
 
 export const router = createBrowserRouter([
   {
@@ -62,6 +63,10 @@ export const router = createBrowserRouter([
       {
         path: "payment-history",
         Component: PaymentHistory
+      },
+       {
+        path: "announcements",
+        Component: Announcements
       },
       {
         path: "admin/manage-booking-approval",
