@@ -3,8 +3,10 @@ import { useQuery } from "@tanstack/react-query";
 import React, { useState } from "react";
 import { useParams } from "react-router";
 import useAxiosPublic from "../../../hooks/useAxiosPublic";
+import useAuth from "../../../hooks/useAuth";
 
 const CheckoutForm = () => {
+  const {user} = useAuth()
   const axiosPublic = useAxiosPublic();
   const stripe = useStripe();
   const elements = useElements();
@@ -23,80 +25,87 @@ const CheckoutForm = () => {
     enabled: !!id,
   });
 
-  
   const { totalPrice } = booking || {};
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!stripe || !elements || !totalPrice) return;
+  e.preventDefault();
+  if (!stripe || !elements || !totalPrice) return;
 
-    const card = elements.getElement(CardElement);
-    if (!card) return;
+  const card = elements.getElement(CardElement);
+  if (!card) return;
 
-    setProcessing(true);
+  setProcessing(true);
 
-    const { error, paymentMethod } = await stripe.createPaymentMethod({
-      type: "card",
-      card,
+  const { error, paymentMethod } = await stripe.createPaymentMethod({
+    type: "card",
+    card,
+  });
+
+  if (error) {
+    setError(error.message);
+    setProcessing(false);
+    return;
+  }
+
+  setError(null);
+
+  try {
+    // 1. Create Payment Intent
+    const res = await axiosPublic.post("payments/create-payment-intent", {
+      totalPrice,
+      id,
     });
 
-    if (error) {
-      setError(error.message);
-      setProcessing(false);
-      return;
-    }
+    const clientSecret = res.data.clientSecret;
 
-    setError(null);
-
-    try {
-      // 1. Create Payment Intent
-      const res = await axiosPublic.post("payments/create-payment-intent", {
-        totalPrice,
-        id,
-      });
-
-      const clientSecret = res.data.clientSecret;
-
-      // 2. Confirm Card Payment
-      const result = await stripe.confirmCardPayment(clientSecret, {
-        payment_method: {
-          card: card,
-          billing_details: {
-            name: booking?.userEmail || "Anonymous",
-          },
+    // 2. Confirm Card Payment
+    const result = await stripe.confirmCardPayment(clientSecret, {
+      payment_method: {
+        card: card,
+        billing_details: {
+          name: booking?.userEmail || "Anonymous",
         },
+      },
+    });
+
+    if (result.error) {
+      setError(result.error.message);
+    } else if (result.paymentIntent.status === "succeeded") {
+      const transactionId = result.paymentIntent.id;
+
+      // 3. Save payment info
+      await axiosPublic.post("/payments/save", {
+        name: user?.displayName || "Anonymous",
+        bookingId: booking._id,
+        userEmail: booking.userEmail, // assuming booking has this
+        transactionId,
+        totalPrice: booking.totalPrice,
+        courtType: booking.courtType, // optional
       });
 
-      if (result.error) {
-        setError(result.error.message);
-      } else if (result.paymentIntent.status === "succeeded") {
-        const transactionId = result.paymentIntent.id;
+      // 4. Confirm booking
+      try {
+        const confirmRes = await axiosPublic.patch(`/bookings/confirm/${id}`, {
+          transactionId,
+        });
 
-        // ✅ Step 3: Confirm booking in DB
-        try {
-          const confirmRes = await axiosPublic.patch(
-            `bookings/confirm/${id}`,
-            {
-              transactionId,
-            }
-          );
-
-          if (confirmRes.data.success) {
-            alert("✅ Booking confirmed and payment successful!");
-          } else {
-            alert("⚠️ Payment done, but status update failed.");
-          }
-        } catch (err) {
-          console.error("❌ Error confirming booking:", err);
+        if (confirmRes.data.success) {
+          alert("✅ Booking confirmed and payment successful!");
+        } else {
+          alert("⚠️ Payment done, but status update failed.");
         }
+      } catch (err) {
+        console.error("❌ Error confirming booking:", err);
       }
-    } catch (err) {
-      console.error("Payment error:", err);
-      setError("Payment failed. Please try again.");
     }
+  } catch (err) {
+    console.error("Payment error:", err);
+    setError("Payment failed. Please try again.");
+  }
 
-    setProcessing(false);
-  };
+  setProcessing(false);
+};
+
 
   if (isPending) return <p className="text-white">Loading booking...</p>;
 
