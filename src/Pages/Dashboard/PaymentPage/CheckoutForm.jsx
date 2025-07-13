@@ -41,8 +41,10 @@ const CheckoutForm = () => {
       console.log("payment", paymentMethod);
     }
 
+    const res = await axiosPublic.post('/payments/create-payment-intent', {
+      
+    })
 
-    
   };
   return (
     <div>
