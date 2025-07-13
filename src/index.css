@@ -1,0 +1,30 @@
+/* @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap'); */
+@import "tailwindcss";
+@plugin "daisyui" {
+  themes: light --default, dark --prefersdark, cupcake;
+}
+
+
+@theme {
+  --font-primary: "Roboto", "sans-serif";
+  --breakpoint-3xl: 120rem;
+  /* 🎨 Custom Theme Colors from Elite Sports Club */
+  --color-elite-primary: #312e81;
+  --color-elite-secondary: #0f172a;
+  --color-elite-brand: #53147a;
+
+  --color-elite-hover1: #c11ff2;
+  --color-elite-hover2: #2563eb;
+}
+
+
+/* 
+p=#312e81 
+s=#0f172a 
+b=#9400ff
+
+hover-color gradient
+#7e22ce 
+#2563eb 
+
+*/
