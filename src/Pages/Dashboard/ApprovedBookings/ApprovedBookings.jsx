@@ -13,7 +13,7 @@ const ApprovedBookings = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
-  // ✅ Fetch approved bookings
+  // Fetch approved bookings
   const { data: bookings = [], isLoading } = useQuery({
     queryKey: ["approved-bookings", user?.email],
     queryFn: async () => {
@@ -25,18 +25,18 @@ const ApprovedBookings = () => {
     enabled: !!user?.email,
   });
 
-  // 🔴 Cancel booking
+  // Cancel booking
   const cancelBookingMutation = useMutation({
     mutationFn: async (id) => {
       const res = await axiosPublic.delete(`/bookings/${id}`);
       return res.data;
     },
     onSuccess: () => {
-      Swal.fire("Cancelled!", "Booking cancelled successfully.", "info");
+      Swal.fire("Cancelled", "Booking has been cancelled.", "info");
       queryClient.invalidateQueries(["approved-bookings", user?.email]);
     },
     onError: () => {
-      Swal.fire("Error!", "Failed to cancel booking.", "error");
+      Swal.fire("Error", "Failed to cancel booking.", "error");
     },
   });
 
@@ -47,71 +47,86 @@ const ApprovedBookings = () => {
       icon: "warning",
       showCancelButton: true,
       confirmButtonText: "Yes, cancel it",
-    }).then((result) => {
-      if (result.isConfirmed) cancelBookingMutation.mutate(id);
+    }).then((res) => {
+      if (res.isConfirmed) cancelBookingMutation.mutate(id);
     });
   };
 
-  const handlePayment = (booking) => {
-    navigate(`/dashboard/payment-page/${booking}`, { state: { booking } });
+  const handlePayment = (bookingId) => {
+    navigate(`/dashboard/payment-page/${bookingId}`);
   };
 
   if (isLoading) return <Loading />;
 
   if (!bookings.length)
-    return <p className="text-gray-300 mt-2">No approved bookings found.</p>;
+    return (
+      <p className="text-gray-300 text-center text-lg mt-4">
+        No approved bookings found.
+      </p>
+    );
 
   return (
     <div className="p-4">
-      <h2 className="text-2xl font-bold text-white mb-6">
+      <h2 className="text-2xl font-bold text-white mb-6 text-center">
         Approved Bookings
       </h2>
-      <div className="grid gap-4">
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {bookings.map((booking) => (
           <div
             key={booking._id}
-            className="bg-[#2b245d] text-white p-4 rounded shadow border border-white/10"
+            className="bg-[#1f1b45] text-white p-6 rounded-xl shadow border border-white/10 hover:shadow-lg transition"
           >
-            <h3 className="text-lg font-semibold mb-2">
+            <h3 className="text-xl font-semibold text-purple-400 mb-2">
               {booking.courtName || "Court"}
             </h3>
-            <p>
-              <span className="text-purple-300">Date:</span> {booking.date}
-            </p>
-            <p className="flex flex-wrap gap-1">
-              <span className="text-purple-300">Slots:</span>
-              {booking.slots?.map((slot, i) => (
-                <span
-                  key={i}
-                  className="bg-white/20 px-2 py-1 rounded text-sm"
-                >
-                  {slot}
-                </span>
-              ))}
-            </p>
-            <p>
-              <span className="text-purple-300">Price/Slot:</span> RM
-              {booking.pricePerSlot}
-            </p>
-            <p>
-              <span className="text-purple-300">Total Price:</span> RM
-              {booking.totalPrice}
-            </p>
-            <p>
-              <span className="text-purple-300">Booked At:</span>{" "}
-              {format(new Date(booking.createdAt), "dd MMM yyyy, h:mm a")}
-            </p>
 
-            <div className="flex gap-3 mt-4">
+            <div className="space-y-1 text-sm">
+              <p>
+                <span className="font-medium text-purple-300">Date:</span>{" "}
+                {booking.date}
+              </p>
+              <p className="flex flex-wrap gap-2">
+                <span className="font-medium text-purple-300">Slots:</span>
+                {booking.slots.map((slot, idx) => (
+                  <span
+                    key={idx}
+                    className="bg-white/10 px-3 py-1 rounded-full text-sm"
+                  >
+                    {slot}
+                  </span>
+                ))}
+              </p>
+              <p>
+                <span className="font-medium text-purple-300">
+                  Price/Slot:
+                </span>{" "}
+                RM {booking.pricePerSlot}
+              </p>
+              <p>
+                <span className="font-medium text-purple-300">
+                  Total Price:
+                </span>{" "}
+                <span className="text-yellow-400 font-semibold">
+                  RM {booking.totalPrice}
+                </span>
+              </p>
+              <p>
+                <span className="font-medium text-purple-300">Booked At:</span>{" "}
+                {format(new Date(booking.createdAt), "dd MMM yyyy, h:mm a")}
+              </p>
+            </div>
+
+            <div className="flex justify-between mt-4 gap-2">
               <button
                 onClick={() => handlePayment(booking._id)}
-                className="bg-green-600 hover:bg-green-700 px-4 py-1 rounded text-sm"
+                className="flex-1 bg-green-600 hover:bg-green-700 px-4 py-2 rounded-md text-sm font-medium transition"
               >
                 Pay Now
               </button>
               <button
                 onClick={() => handleCancel(booking._id)}
-                className="bg-red-600 hover:bg-red-700 px-4 py-1 rounded text-sm"
+                className="flex-1 bg-red-600 hover:bg-red-700 px-4 py-2 rounded-md text-sm font-medium transition"
               >
                 Cancel
               </button>

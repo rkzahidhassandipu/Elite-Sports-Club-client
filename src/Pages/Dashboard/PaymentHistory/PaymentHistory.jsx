@@ -21,37 +21,54 @@ const PaymentHistory = () => {
   if (isLoading) return <Loading />;
 
   if (!payments.length)
-    return <p className="text-gray-300 mt-2">No payment history found.</p>;
+    return (
+      <p className="text-gray-300 mt-4 text-center text-lg">
+        No payment history found.
+      </p>
+    );
 
   return (
     <div className="p-4">
-      <h2 className="text-2xl font-bold text-white mb-6">Payment History</h2>
-      <div className="grid gap-4">
+      <h2 className="text-2xl font-bold text-white mb-6 text-center">
+        Payment History
+      </h2>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {payments.map((payment) => (
           <div
             key={payment._id}
-            className="bg-[#2b245d] text-white p-4 rounded shadow border border-white/10"
+            className="bg-[#1f1b45] p-6 rounded-xl text-white shadow-md border border-white/10 transition hover:shadow-lg"
           >
-            <p>
-              <span className="text-purple-300">Payer Name:</span>{" "}
+            <div className="mb-2">
+              <span className="font-semibold text-purple-400">Payer Name:</span>{" "}
               {payment.name}
-            </p>
-            <p>
-              <span className="text-purple-300">Booking ID:</span>{" "}
-              {payment.bookingId}
-            </p>
-            <p>
-              <span className="text-purple-300">Transaction ID:</span>{" "}
-              {payment.transactionId}
-            </p>
-            <p>
-              <span className="text-purple-300">Amount Paid:</span> RM
-              {payment.totalPrice}
-            </p>
-            <p>
-              <span className="text-purple-300">Paid At:</span>{" "}
-              {format(new Date(payment.paidAt), "dd MMM yyyy, h:mm a")}
-            </p>
+            </div>
+            <div className="mb-2">
+              <span className="font-semibold text-purple-400">Booking ID:</span>{" "}
+              <span className="text-xs bg-white/10 px-2 py-1 rounded">
+                {payment.bookingId}
+              </span>
+            </div>
+            <div className="mb-2">
+              <span className="font-semibold text-purple-400">
+                Transaction ID:
+              </span>{" "}
+              <span className="text-xs bg-green-600/20 px-2 py-1 rounded text-green-400 font-mono">
+                {payment.transactionId}
+              </span>
+            </div>
+            <div className="mb-2">
+              <span className="font-semibold text-purple-400">Amount Paid:</span>{" "}
+              <span className="text-yellow-400 font-bold">
+                RM {payment.totalPrice}
+              </span>
+            </div>
+            <div>
+              <span className="font-semibold text-purple-400">Paid At:</span>{" "}
+              <span className="text-sm">
+                {format(new Date(payment.paidAt), "dd MMM yyyy, h:mm a")}
+              </span>
+            </div>
           </div>
         ))}
       </div>

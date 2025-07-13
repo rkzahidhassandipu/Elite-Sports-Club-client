@@ -7,6 +7,8 @@ import useAxiosPublic from "../../../hooks/useAxiosPublic";
 import useAuth from "../../../hooks/useAuth";
 
 const CourtPopup = ({ isOpen, onClose, court }) => {
+
+  console.log(court.name)
   const axiosPublic = useAxiosPublic();
   const { user } = useAuth();
 
@@ -27,12 +29,14 @@ const CourtPopup = ({ isOpen, onClose, court }) => {
 
   const bookingData = {
     courtId: court._id,
-    courtName: `${court.type} Court`,
+    courtName: court.name,
     slots: selectedSlots,
     date: data.date,
     pricePerSlot: court.price,
     userEmail: user?.email,
   };
+
+  console.log(bookingData)
 
   try {
     const res = await axiosPublic.post("bookings", bookingData);

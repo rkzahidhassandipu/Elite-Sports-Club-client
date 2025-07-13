@@ -48,70 +48,82 @@ const PendingBookings = () => {
       confirmButtonText: "Yes, cancel it!",
     }).then((result) => {
       if (result.isConfirmed) {
-        cancelBookingMutation.mutate(id); // ✅ Runs mutation only after confirmation
+        cancelBookingMutation.mutate(id);
       }
     });
   };
 
-  // 🌀 Loading state
   if (isLoading) return <Loading />;
+
   if (!bookings.length)
-    return <p className="text-gray-300 mt-2">You have no pending bookings.</p>;
+    return (
+      <p className="text-gray-300 mt-4 text-center">
+        You have no pending bookings.
+      </p>
+    );
 
   return (
-    <div className="w-full mt-4">
-      <h2 className="text-2xl font-bold text-white mb-4">Pending Bookings</h2>
-      {bookings.map((booking) => (
-        <div
-          key={booking._id}
-          className="bg-[#2b245d] text-white p-4 rounded-md shadow-md border border-white/10"
-        >
-          <h3 className="text-lg font-semibold mb-2">
-            {booking.courtName || "Court"}
-          </h3>
-          <p>
-            <span className="text-purple-300">Date:</span>{" "}
-            {booking.date || "N/A"}
-          </p>
-          <p className="flex">
-            <span className="text-purple-300 ">Time Slots:</span>{" "}
-            <div className="flex flex-wrap gap-1 ml-2">
-              {booking.slots?.length > 0 ? (
-                booking.slots.map((slot, idx) => (
-                  <span
-                    key={idx}
-                    className="bg-white/20 px-2 py-1 rounded text-sm"
-                  >
-                    {slot}
-                  </span>
-                ))
-              ) : (
-                <span className="text-gray-400">N/A</span>
-              )}
-            </div>
-          </p>
-          <p>
-            <span className="text-purple-300">Price/Slot:</span> RM
-            {booking.pricePerSlot}
-          </p>
-          <p>
-            <span className="text-purple-300">Total:</span> RM
-            {booking.totalPrice}
-          </p>
-          <p>
-            <span className="text-purple-300">Booked At:</span>{" "}
-            {booking.createdAt
-              ? format(new Date(booking.createdAt), "dd MMM yyyy, h:mm a")
-              : "N/A"}
-          </p>
-          <button
-            onClick={() => handleCancel(booking._id)}
-            className="mt-3 px-4 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-sm"
+    <div className="p-4">
+      <h2 className="text-2xl font-bold text-white mb-6 text-center">
+        Pending Bookings
+      </h2>
+
+      <div className="grid gap-6 md:grid-cols-2">
+        {bookings.map((booking) => (
+          <div
+            key={booking._id}
+            className="bg-[#2b245d] text-white p-5 rounded-xl shadow border border-white/10 hover:shadow-lg transition"
           >
-            Cancel
-          </button>
-        </div>
-      ))}
+            <h3 className="text-xl font-semibold mb-2 text-purple-400">
+              {booking.courtName || "Court"}
+            </h3>
+
+            <div className="space-y-1 text-sm">
+              <p>
+                <span className="text-purple-300">Date:</span> {booking.date}
+              </p>
+              <p className="flex gap-2 items-center flex-wrap">
+                <span className="text-purple-300">Slots:</span>
+                {booking.slots?.length > 0 ? (
+                  booking.slots.map((slot, i) => (
+                    <span
+                      key={i}
+                      className="bg-white/10 px-3 py-1 rounded-full text-xs"
+                    >
+                      {slot}
+                    </span>
+                  ))
+                ) : (
+                  <span className="text-gray-400">N/A</span>
+                )}
+              </p>
+              <p>
+                <span className="text-purple-300">Price/Slot:</span> RM{" "}
+                {booking.pricePerSlot}
+              </p>
+              <p>
+                <span className="text-purple-300">Total Price:</span>{" "}
+                <span className="text-yellow-400 font-medium">
+                  RM {booking.totalPrice}
+                </span>
+              </p>
+              <p>
+                <span className="text-purple-300">Booked At:</span>{" "}
+                {booking.createdAt
+                  ? format(new Date(booking.createdAt), "dd MMM yyyy, h:mm a")
+                  : "N/A"}
+              </p>
+            </div>
+
+            <button
+              onClick={() => handleCancel(booking._id)}
+              className="mt-4 bg-red-600 hover:bg-red-700 px-4 py-2 rounded text-sm font-medium w-full transition"
+            >
+              Cancel Booking
+            </button>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
