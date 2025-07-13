@@ -4,6 +4,7 @@ const ConfirmedBookings = () => {
   return (
     <div>
       Confirmed Bookings
+      
     </div>
   )
 }
