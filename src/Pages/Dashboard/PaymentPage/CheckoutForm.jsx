@@ -20,7 +20,7 @@ const CheckoutForm = () => {
     enabled: !!id, // optional safety check
   });
 
-  const {totalPrice} = booking
+  const { totalPrice } = booking;
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -36,16 +36,21 @@ const CheckoutForm = () => {
 
     if (error) {
       setError(error.message);
+      return;
     } else {
-      setError();
+      setError(null);
       console.log("payment", paymentMethod);
     }
 
-    const res = await axiosPublic.post('/payments/create-payment-intent', {
-      
-    })
+    // ✅ Send totalPrice instead of undefined amount
+    const res = await axiosPublic.post("payments/create-payment-intent", {
+      totalPrice,
+      id,
+    });
 
+    console.log(res.data); // Should contain clientSecret
   };
+
   return (
     <div>
       <form onSubmit={handleSubmit}>
