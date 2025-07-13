@@ -13,6 +13,7 @@ import {
   FaPlusCircle,
   FaTags,
   FaSearch,
+  FaUserShield,
 } from "react-icons/fa";
 import useUserRole from "../../../hooks/useUserRole";
 
@@ -39,10 +40,9 @@ const Sidebar = () => {
         <h2 className="text-2xl font-bold mb-8">Dashboard</h2>
       </Link>
       <nav className="flex flex-col gap-2">
-        {navItem("/dashboard/profile", "Profile", <FaUser />)}
         {role === "user" && (
           <>
-            
+            {navItem("/dashboard/profile", "Profile", <FaUser />)}
             {navItem(
               "/dashboard/pending-bookings",
               "Pending Bookings",
@@ -58,7 +58,7 @@ const Sidebar = () => {
 
         {role === "member" && (
           <>
-            
+            {navItem("/dashboard/profile", "Profile", <FaUser />)}
             {navItem(
               "/dashboard/pending-bookings",
               "Pending Bookings",
@@ -74,11 +74,7 @@ const Sidebar = () => {
               "Confirmed Bookings",
               <FaCheckCircle />
             )}
-            {/* {navItem(
-              "/dashboard/payment-page",
-              "Payment Page",
-              <FaDollarSign />
-            )} */}
+
             {navItem(
               "/dashboard/payment-history",
               "Payment History",
@@ -95,33 +91,47 @@ const Sidebar = () => {
         {/* ✅ Admin Only */}
         {role === "admin" && (
           <>
+          
+            {navItem(
+              "/dashboard/profile",
+              "Admin Profile",
+              <FaUserShield />
+            )}
             <hr className="border-white/10 my-2" />
             {navItem(
-              "/dashboard/admin/manage-booking-approval",
+              "/dashboard/manage-booking-approval",
               "Manage Booking Approval",
               <FaClipboardList />
             )}
             {navItem(
-              "/dashboard/admin/manage-members",
+              "/dashboard/manage-members",
               "Manage Members",
               <FaUsers />
             )}
-            {navItem("/dashboard/admin/all-users", "All Users", <FaUsers />)}
-            {navItem("/dashboard/admin/manage-courts", "Manage Courts", <FaCogs />)}
+
+            {navItem("/dashboard/all-users", "All Users", <FaUsers />)}
             {navItem(
-              "/dashboard/admin/manage-bookings",
+              "/dashboard/manage-courts",
+              "Manage Courts",
+              <FaCogs />
+            )}
+            {navItem(
+              "/dashboard/manage-bookings",
               "Manage Bookings",
               <FaClipboardList />
             )}
-            {navItem("/dashboard/admin/manage-coupons", "Manage Coupons", <FaTags />)}
             {navItem(
-              "/dashboard/admin/make-announcement",
+              "/dashboard/manage-coupons",
+              "Manage Coupons",
+              <FaTags />
+            )}
+            {navItem(
+              "/dashboard/make-announcement",
               "Make Announcement",
               <FaPlusCircle />
             )}
           </>
         )}
-
       </nav>
     </aside>
   );

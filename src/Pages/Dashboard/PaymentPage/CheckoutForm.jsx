@@ -2,6 +2,7 @@ import { CardElement, useElements, useStripe } from "@stripe/react-stripe-js";
 import { useQuery } from "@tanstack/react-query";
 import React, { useState } from "react";
 import { useParams } from "react-router";
+import { toast } from "react-toastify";
 import useAxiosPublic from "../../../hooks/useAxiosPublic";
 import useAuth from "../../../hooks/useAuth";
 
@@ -40,9 +41,10 @@ const CheckoutForm = () => {
     try {
       const res = await axiosPublic.get(`/coupons/validate?code=${coupon}`);
       setDiscountInfo(res.data);
+      toast.success(`Coupon "${res.data.code}" applied!`);
     } catch (err) {
       setDiscountInfo(null);
-      alert("Invalid or expired coupon");
+      toast.error("Invalid or expired coupon code");
     }
   };
 
@@ -110,11 +112,11 @@ const CheckoutForm = () => {
           transactionId,
         });
 
-        alert("✅ Booking confirmed and payment successful!");
+        toast.success("✅ Payment successful and booking confirmed!");
       }
     } catch (err) {
-      console.error("Payment error:", err);
       setError("Payment failed. Please try again.");
+      toast.error("❌ Payment failed. Try again.");
     }
 
     setProcessing(false);

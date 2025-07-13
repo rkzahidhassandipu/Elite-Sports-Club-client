@@ -19,6 +19,8 @@ import ManageBookings from "../Pages/Dashboard/Admin/ManageBookings/ManageBookin
 import MakeAnnouncement from "../Pages/Dashboard/Admin/MakeAnnouncement/MakeAnnouncement";
 import ManageCoupons from "../Pages/Dashboard/Admin/ManageCoupons/ManageCoupons";
 import Announcements from "../Pages/Dashboard/Announcements/Announcements";
+import AdminProfile from "../Pages/Dashboard/Admin/AdminProfile/AdminProfile";
+import ProfileRoute from "./ProfileRoute";
 
 export const router = createBrowserRouter([
   {
@@ -46,7 +48,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "profile",
-        Component: Profile
+        Component: ProfileRoute
       },
       {
         path: "approved-bookings",
@@ -69,31 +71,31 @@ export const router = createBrowserRouter([
         Component: Announcements
       },
       {
-        path: "admin/manage-booking-approval",
+        path: "manage-booking-approval",
         Component: BookingApproval
       },
       {
-        path: "admin/manage-members",
+        path: "manage-members",
         Component: ManageMember
       },
       {
-        path: "admin/all-users",
+        path: "all-users",
         Component: AllUsers
       },
       {
-        path: "admin/manage-courts",
+        path: "manage-courts",
         Component: ManageCourts
       },
       {
-        path: "admin/manage-bookings",
+        path: "manage-bookings",
         Component: ManageBookings
       },
       {
-        path: "admin/manage-coupons",
+        path: "manage-coupons",
         Component: ManageCoupons
       },
       {
-        path: "admin/make-announcement",
+        path: "make-announcement",
         Component: MakeAnnouncement
       },
     ]
