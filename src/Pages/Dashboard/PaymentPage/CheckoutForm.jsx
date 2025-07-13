@@ -70,6 +70,7 @@ const CheckoutForm = () => {
 
     console.log(res.data); // Should contain clientSecret
   };
+  
 
   console.log(totalPrice)
 
