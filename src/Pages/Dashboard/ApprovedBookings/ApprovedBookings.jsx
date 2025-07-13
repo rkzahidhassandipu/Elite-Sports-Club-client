@@ -104,7 +104,7 @@ const ApprovedBookings = () => {
 
             <div className="flex gap-3 mt-4">
               <button
-                onClick={() => handlePayment(booking)}
+                onClick={() => handlePayment(booking._id)}
                 className="bg-green-600 hover:bg-green-700 px-4 py-1 rounded text-sm"
               >
                 Pay Now

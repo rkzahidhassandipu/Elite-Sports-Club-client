@@ -14,11 +14,13 @@ const CheckoutForm = () => {
   const { isPending, data: booking = {} } = useQuery({
     queryKey: ["booking", id],
     queryFn: async () => {
-      const res = await axiosPublic.get(`/bookings/${id}`);
-      return res.data.booking; // ✅ return only the booking object
+      const res = await axiosPublic.get(`bookings/${id}`);
+      return res.data.booking;
     },
     enabled: !!id, // optional safety check
   });
+
+  console.log(booking);
 
   const { totalPrice } = booking;
   const handleSubmit = async (e) => {
@@ -54,25 +56,23 @@ const CheckoutForm = () => {
       payment_method: {
         card: elements.getElement(CardElement),
         billing_details: {
-          name: 'raihan uddin'
-        }
-      }
+          name: "raihan uddin",
+        },
+      },
     });
 
-    if(result.error){
-      console.log(result.error.message)
-    }
-    else{
-      if(result.paymentIntent.status === "succeeded"){
-        console.log('payment succeeded')
+    if (result.error) {
+      console.log(result.error.message);
+    } else {
+      if (result.paymentIntent.status === "succeeded") {
+        console.log("payment succeeded");
       }
     }
 
     console.log(res.data); // Should contain clientSecret
   };
-  
 
-  console.log(totalPrice)
+  console.log(totalPrice);
 
   return (
     <div>
