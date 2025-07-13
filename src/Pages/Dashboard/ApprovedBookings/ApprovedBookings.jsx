@@ -53,7 +53,7 @@ const ApprovedBookings = () => {
   };
 
   const handlePayment = (booking) => {
-    navigate(`/dashboard/payment-page`, { state: { booking } });
+    navigate(`/dashboard/payment-page/${booking}`, { state: { booking } });
   };
 
   if (isLoading) return <Loading />;
