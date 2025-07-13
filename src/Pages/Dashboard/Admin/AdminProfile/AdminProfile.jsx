@@ -50,7 +50,7 @@ const AdminProfile = () => {
         <div className="grid grid-cols-2 gap-4 mt-6 text-center">
           <div className="bg-elite-brand/10 p-4 rounded">
             <h4 className="text-xl font-bold text-elite-primary">
-              {courtsData.total || 0}
+              {courtsData.length || 0}
             </h4>
             <p className="text-sm text-gray-300">Total Courts</p>
           </div>
