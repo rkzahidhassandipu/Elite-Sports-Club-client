@@ -53,6 +53,7 @@ const BookingApproval = () => {
   const handleApprove = (id) => {
 
     navigate(`/dashboard/payment-page/${id}`)
+    
     // Swal.fire({
     //   title: "Approve Booking?",
     //   icon: "question",
