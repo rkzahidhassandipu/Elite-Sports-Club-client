@@ -13,12 +13,12 @@ const ApprovedBookings = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
-  // 🔵 Fetch approved bookings
+  // ✅ Fetch approved bookings
   const { data: bookings = [], isLoading } = useQuery({
     queryKey: ["approved-bookings", user?.email],
     queryFn: async () => {
       const res = await axiosPublic.get(
-        `bookings/approved?email=${user?.email}&status=approved`
+        `/bookings?email=${user?.email}&status=approved`
       );
       return res.data;
     },
@@ -53,7 +53,7 @@ const ApprovedBookings = () => {
   };
 
   const handlePayment = (booking) => {
-    navigate("/dashboard/payment-page", { state: { booking } });
+    navigate(`/dashboard/payment-page`, { state: { booking } });
   };
 
   if (isLoading) return <Loading />;
@@ -76,23 +76,18 @@ const ApprovedBookings = () => {
               {booking.courtName || "Court"}
             </h3>
             <p>
-              <span className="text-purple-300">Date:</span>{" "}
-              {booking.date || "N/A"}
+              <span className="text-purple-300">Date:</span> {booking.date}
             </p>
-            <p className="flex flex-wrap items-center gap-1">
+            <p className="flex flex-wrap gap-1">
               <span className="text-purple-300">Slots:</span>
-              {booking.slots?.length > 0 ? (
-                booking.slots.map((slot, i) => (
-                  <span
-                    key={i}
-                    className="bg-white/20 px-2 py-1 rounded text-sm"
-                  >
-                    {slot}
-                  </span>
-                ))
-              ) : (
-                <span className="text-gray-400">N/A</span>
-              )}
+              {booking.slots?.map((slot, i) => (
+                <span
+                  key={i}
+                  className="bg-white/20 px-2 py-1 rounded text-sm"
+                >
+                  {slot}
+                </span>
+              ))}
             </p>
             <p>
               <span className="text-purple-300">Price/Slot:</span> RM
@@ -104,9 +99,7 @@ const ApprovedBookings = () => {
             </p>
             <p>
               <span className="text-purple-300">Booked At:</span>{" "}
-              {booking.createdAt
-                ? format(new Date(booking.createdAt), "dd MMM yyyy, h:mm a")
-                : "N/A"}
+              {format(new Date(booking.createdAt), "dd MMM yyyy, h:mm a")}
             </p>
 
             <div className="flex gap-3 mt-4">
