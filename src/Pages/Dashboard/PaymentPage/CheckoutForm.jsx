@@ -8,28 +8,31 @@ const CheckoutForm = () => {
   const axiosPublic = useAxiosPublic();
   const stripe = useStripe();
   const elements = useElements();
-  const [error, setError] = useState();
   const { id } = useParams();
 
+  const [error, setError] = useState(null);
+  const [processing, setProcessing] = useState(false);
+
+  // ⏳ Fetch booking by ID
   const { isPending, data: booking = {} } = useQuery({
     queryKey: ["booking", id],
     queryFn: async () => {
       const res = await axiosPublic.get(`bookings/${id}`);
       return res.data.booking;
     },
-    enabled: !!id, // optional safety check
+    enabled: !!id,
   });
 
-  console.log(booking);
+  const { totalPrice } = booking || {};
 
-  const { totalPrice } = booking;
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!stripe || !elements) return;
+    if (!stripe || !elements || !totalPrice) return;
 
     const card = elements.getElement(CardElement);
     if (!card) return;
+
+    setProcessing(true);
 
     const { error, paymentMethod } = await stripe.createPaymentMethod({
       type: "card",
@@ -38,52 +41,83 @@ const CheckoutForm = () => {
 
     if (error) {
       setError(error.message);
+      setProcessing(false);
       return;
-    } else {
-      setError(null);
-      console.log("payment", paymentMethod);
     }
 
-    // ✅ Send totalPrice instead of undefined amount
-    const res = await axiosPublic.post("payments/create-payment-intent", {
-      totalPrice,
-      id,
-    });
+    setError(null);
 
-    const clientSecret = res.data.clientSecret;
+    try {
+      // 1. Create Payment Intent
+      const res = await axiosPublic.post("payments/create-payment-intent", {
+        totalPrice,
+        id,
+      });
 
-    const result = await stripe.confirmCardPayment(clientSecret, {
-      payment_method: {
-        card: elements.getElement(CardElement),
-        billing_details: {
-          name: "raihan uddin",
+      const clientSecret = res.data.clientSecret;
+
+      // 2. Confirm Card Payment
+      const result = await stripe.confirmCardPayment(clientSecret, {
+        payment_method: {
+          card: card,
+          billing_details: {
+            name: booking?.userEmail || "Anonymous",
+          },
         },
-      },
-    });
+      });
 
-    if (result.error) {
-      console.log(result.error.message);
-    } else {
-      if (result.paymentIntent.status === "succeeded") {
-        console.log("payment succeeded", result);
+      if (result.error) {
+        setError(result.error.message);
+      } else if (result.paymentIntent.status === "succeeded") {
+        const transactionId = result.paymentIntent.id;
+
+        // ✅ Step 3: Confirm booking in DB
+        try {
+          const confirmRes = await axiosPublic.patch(
+            `bookings/confirm/${id}`,
+            {
+              transactionId,
+            }
+          );
+
+          if (confirmRes.data.success) {
+            alert("✅ Booking confirmed and payment successful!");
+          } else {
+            alert("⚠️ Payment done, but status update failed.");
+          }
+        } catch (err) {
+          console.error("❌ Error confirming booking:", err);
+        }
       }
+    } catch (err) {
+      console.error("Payment error:", err);
+      setError("Payment failed. Please try again.");
     }
 
-    console.log(res.data); // Should contain clientSecret
+    setProcessing(false);
   };
 
-  console.log(totalPrice);
+  if (isPending) return <p className="text-white">Loading booking...</p>;
 
   return (
-    <div>
-      <form onSubmit={handleSubmit}>
-        <CardElement></CardElement>
-        <button type="submit" disabled={!stripe}>
-          Pay ${totalPrice}
-        </button>
-        {error && <p>{error}</p>}
-      </form>
-    </div>
+    <form
+      onSubmit={handleSubmit}
+      className="bg-white p-6 rounded shadow max-w-lg mx-auto mt-10"
+    >
+      <h2 className="text-xl font-semibold mb-4">Pay RM {totalPrice}</h2>
+
+      <CardElement className="mb-4 border p-3 rounded" />
+
+      {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
+
+      <button
+        type="submit"
+        disabled={!stripe || processing}
+        className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded w-full disabled:opacity-50"
+      >
+        {processing ? "Processing..." : `Pay RM ${totalPrice}`}
+      </button>
+    </form>
   );
 };
 
