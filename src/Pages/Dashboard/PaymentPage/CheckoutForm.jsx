@@ -6,7 +6,7 @@ import useAxiosPublic from "../../../hooks/useAxiosPublic";
 import useAuth from "../../../hooks/useAuth";
 
 const CheckoutForm = () => {
-  const {user} = useAuth()
+  const { user } = useAuth();
   const axiosPublic = useAxiosPublic();
   const stripe = useStripe();
   const elements = useElements();
@@ -14,6 +14,7 @@ const CheckoutForm = () => {
 
   const [error, setError] = useState(null);
   const [processing, setProcessing] = useState(false);
+  const [paymentSuccess, setPaymentSuccess] = useState(false);
 
   // ⏳ Fetch booking by ID
   const { isPending, data: booking = {} } = useQuery({
@@ -28,91 +29,94 @@ const CheckoutForm = () => {
   const { totalPrice } = booking || {};
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  if (!stripe || !elements || !totalPrice) return;
+    e.preventDefault();
+    if (!stripe || !elements || !totalPrice) return;
 
-  const card = elements.getElement(CardElement);
-  if (!card) return;
+    const card = elements.getElement(CardElement);
+    if (!card) return;
 
-  setProcessing(true);
+    setProcessing(true);
 
-  const { error, paymentMethod } = await stripe.createPaymentMethod({
-    type: "card",
-    card,
-  });
-
-  if (error) {
-    setError(error.message);
-    setProcessing(false);
-    return;
-  }
-
-  setError(null);
-
-  try {
-    // 1. Create Payment Intent
-    const res = await axiosPublic.post("payments/create-payment-intent", {
-      totalPrice,
-      id,
+    const { error, paymentMethod } = await stripe.createPaymentMethod({
+      type: "card",
+      card,
     });
 
-    const clientSecret = res.data.clientSecret;
+    if (error) {
+      setError(error.message);
+      setProcessing(false);
+      return;
+    }
 
-    // 2. Confirm Card Payment
-    const result = await stripe.confirmCardPayment(clientSecret, {
-      payment_method: {
-        card: card,
-        billing_details: {
-          name: booking?.userEmail || "Anonymous",
-        },
-      },
-    });
+    setError(null);
 
-    if (result.error) {
-      setError(result.error.message);
-    } else if (result.paymentIntent.status === "succeeded") {
-      const transactionId = result.paymentIntent.id;
-
-      // 3. Save payment info
-      await axiosPublic.post("/payments/save", {
-        name: user?.displayName || "Anonymous",
-        bookingId: booking._id,
-        userEmail: booking.userEmail, // assuming booking has this
-        transactionId,
-        totalPrice: booking.totalPrice,
-        courtType: booking.courtType, // optional
+    try {
+      // 1. Create Payment Intent
+      const res = await axiosPublic.post("payments/create-payment-intent", {
+        totalPrice,
+        id,
       });
 
-      // 4. Confirm booking
-      try {
-        const confirmRes = await axiosPublic.patch(`/bookings/confirm/${id}`, {
+      const clientSecret = res.data.clientSecret;
+
+      // 2. Confirm Card Payment
+      const result = await stripe.confirmCardPayment(clientSecret, {
+        payment_method: {
+          card: card,
+          billing_details: {
+            name: booking?.userEmail || "Anonymous",
+          },
+        },
+      });
+
+      if (result.error) {
+        setError(result.error.message);
+      } else if (result.paymentIntent.status === "succeeded") {
+        const transactionId = result.paymentIntent.id;
+        setPaymentSuccess(true);
+
+        // 3. Save payment info
+        await axiosPublic.post("/payments/save", {
+          name: user?.displayName || "Anonymous",
+          bookingId: booking._id,
+          userEmail: booking.userEmail, // assuming booking has this
           transactionId,
+          totalPrice: booking.totalPrice,
+          courtType: booking.courtType, // optional
         });
 
-        if (confirmRes.data.success) {
-          alert("✅ Booking confirmed and payment successful!");
-        } else {
-          alert("⚠️ Payment done, but status update failed.");
+        // 4. Confirm booking
+        try {
+          const confirmRes = await axiosPublic.patch(
+            `/bookings/confirm/${id}`,
+            {
+              transactionId,
+            }
+          );
+
+          if (confirmRes.data.success) {
+            alert("✅ Booking confirmed and payment successful!");
+          } else {
+            alert("⚠️ Payment done, but status update failed.");
+          }
+        } catch (err) {
+          console.error("❌ Error confirming booking:", err);
         }
-      } catch (err) {
-        console.error("❌ Error confirming booking:", err);
       }
+    } catch (err) {
+      console.error("Payment error:", err);
+      setError("Payment failed. Please try again.");
     }
-  } catch (err) {
-    console.error("Payment error:", err);
-    setError("Payment failed. Please try again.");
-  }
 
-  setProcessing(false);
-};
-
+    setProcessing(false);
+  };
 
   if (isPending) return <p className="text-white">Loading booking...</p>;
 
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-white p-6 rounded shadow max-w-lg mx-auto mt-10"
+      className="p-6 rounded bg-gradient-to-r from-elite-primary via-elite-brand to-elite-primary shadow max-w-lg mx-auto mt-10"
     >
       <h2 className="text-xl font-semibold mb-4">Pay RM {totalPrice}</h2>
 
@@ -122,10 +126,14 @@ const CheckoutForm = () => {
 
       <button
         type="submit"
-        disabled={!stripe || processing}
+        disabled={!stripe || processing || paymentSuccess}
         className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded w-full disabled:opacity-50"
       >
-        {processing ? "Processing..." : `Pay RM ${totalPrice}`}
+        {paymentSuccess
+          ? "Payment Successful"
+          : processing
+          ? "Processing..."
+          : `Pay RM ${totalPrice}`}
       </button>
     </form>
   );
