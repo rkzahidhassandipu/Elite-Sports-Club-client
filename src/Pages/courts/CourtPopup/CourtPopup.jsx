@@ -27,16 +27,18 @@ const CourtPopup = ({ isOpen, onClose, court }) => {
     return;
   }
 
+
+  console.log(court)
   const bookingData = {
     courtId: court._id,
-    courtName: court.name,
+    name: court.name,
     slots: selectedSlots,
     date: data.date,
     pricePerSlot: court.price,
     userEmail: user?.email,
   };
 
-  console.log(bookingData)
+ 
 
   try {
     const res = await axiosPublic.post("bookings", bookingData);

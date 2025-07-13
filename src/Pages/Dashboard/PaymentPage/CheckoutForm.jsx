@@ -15,8 +15,9 @@ const CheckoutForm = () => {
   const [error, setError] = useState(null);
   const [processing, setProcessing] = useState(false);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
+  const [coupon, setCoupon] = useState("");
+  const [discountInfo, setDiscountInfo] = useState(null);
 
-  // ⏳ Fetch booking by ID
   const { isPending, data: booking = {} } = useQuery({
     queryKey: ["booking", id],
     queryFn: async () => {
@@ -26,13 +27,27 @@ const CheckoutForm = () => {
     enabled: !!id,
   });
 
-  const { totalPrice } = booking || {};
+  const originalPrice = booking.totalPrice || 0;
+  const discountAmount =
+    discountInfo?.type === "percentage"
+      ? (originalPrice * discountInfo.discount) / 100
+      : discountInfo?.discount || 0;
 
-  console.log(totalPrice)
+  const discountedPrice = Math.max(originalPrice - discountAmount, 0);
+
+  const handleApplyCoupon = async () => {
+    try {
+      const res = await axiosPublic.get(`/coupons/validate?code=${coupon}`);
+      setDiscountInfo(res.data);
+    } catch (err) {
+      setDiscountInfo(null);
+      alert("Invalid or expired coupon");
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!stripe || !elements || !totalPrice) return;
+    if (!stripe || !elements || !discountedPrice) return;
 
     const card = elements.getElement(CardElement);
     if (!card) return;
@@ -53,15 +68,13 @@ const CheckoutForm = () => {
     setError(null);
 
     try {
-      // 1. Create Payment Intent
       const res = await axiosPublic.post("payments/create-payment-intent", {
-        totalPrice,
+        totalPrice: discountedPrice,
         id,
       });
 
       const clientSecret = res.data.clientSecret;
 
-      // 2. Confirm Card Payment
       const result = await stripe.confirmCardPayment(clientSecret, {
         payment_method: {
           card: card,
@@ -77,33 +90,20 @@ const CheckoutForm = () => {
         const transactionId = result.paymentIntent.id;
         setPaymentSuccess(true);
 
-        // 3. Save payment info
         await axiosPublic.post("/payments/save", {
           name: user?.displayName || "Anonymous",
           bookingId: booking._id,
-          userEmail: booking.userEmail, // assuming booking has this
+          userEmail: booking.userEmail,
           transactionId,
-          totalPrice: booking.totalPrice,
-          courtType: booking.courtType, // optional
+          totalPrice: discountedPrice,
+          courtType: booking.courtType,
         });
 
-        // 4. Confirm booking
-        try {
-          const confirmRes = await axiosPublic.patch(
-            `/bookings/confirm/${id}`,
-            {
-              transactionId,
-            }
-          );
+        await axiosPublic.patch(`/bookings/confirm/${id}`, {
+          transactionId,
+        });
 
-          if (confirmRes.data.success) {
-            alert("✅ Booking confirmed and payment successful!");
-          } else {
-            alert("⚠️ Payment done, but status update failed.");
-          }
-        } catch (err) {
-          console.error("❌ Error confirming booking:", err);
-        }
+        alert("✅ Booking confirmed and payment successful!");
       }
     } catch (err) {
       console.error("Payment error:", err);
@@ -115,23 +115,44 @@ const CheckoutForm = () => {
 
   if (isPending) return <p className="text-white">Loading booking...</p>;
 
-  console.log(booking)
-
   return (
     <form
       onSubmit={handleSubmit}
       className="p-6 rounded bg-gradient-to-r from-elite-primary via-elite-brand to-elite-primary shadow max-w-lg mx-auto mt-10 border border-blue-800"
     >
       <h2 className="text-xl font-semibold mb-4 text-white">
-        Pay RM {totalPrice}
+        Pay RM {discountedPrice.toFixed(2)}
       </h2>
 
       <div className="space-y-4 text-sm text-white">
+        <div className="flex gap-2 items-center">
+          <input
+            type="text"
+            placeholder="Enter coupon code"
+            value={coupon}
+            onChange={(e) => setCoupon(e.target.value)}
+            className="flex-1 px-3 py-2 rounded bg-white/10 border border-white/20"
+          />
+          <button
+            type="button"
+            onClick={handleApplyCoupon}
+            className="px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded"
+          >
+            Apply
+          </button>
+        </div>
+
+        {discountInfo && (
+          <p className="text-green-300 text-sm">
+            Coupon "{discountInfo.code}" applied. You saved RM {discountAmount.toFixed(2)}!
+          </p>
+        )}
+
         <div>
           <label className="block font-medium mb-1">Email</label>
           <input
             type="text"
-            value={console.log(booking)}
+            value={booking.userEmail || "N/A"}
             readOnly
             className="w-full px-3 py-2 rounded bg-white/10 border border-white/20 text-white"
           />
@@ -141,7 +162,7 @@ const CheckoutForm = () => {
           <label className="block font-medium mb-1">Court Type</label>
           <input
             type="text"
-            value={booking.name}
+            value={booking.courtName || "N/A"}
             readOnly
             className="w-full px-3 py-2 rounded bg-white/10 border border-white/20 text-white"
           />
@@ -151,7 +172,7 @@ const CheckoutForm = () => {
           <label className="block font-medium mb-1">Date</label>
           <input
             type="text"
-            value={booking.date}
+            value={booking.date || "N/A"}
             readOnly
             className="w-full px-3 py-2 rounded bg-white/10 border border-white/20 text-white"
           />
@@ -167,7 +188,7 @@ const CheckoutForm = () => {
               >
                 {slot}
               </span>
-            ))}
+            )) || <span>N/A</span>}
           </div>
         </div>
 
@@ -175,16 +196,18 @@ const CheckoutForm = () => {
           <label className="block font-medium mb-1">Total Price</label>
           <input
             type="text"
-            value={`RM ${booking.totalPrice}`}
+            value={`RM ${discountedPrice.toFixed(2)}`}
             readOnly
             className="w-full px-3 py-2 rounded bg-white/10 border border-white/20 text-white"
           />
         </div>
       </div>
 
+
       <div className="mt-6">
         <CardElement className="mb-4 border p-3 rounded bg-white text-black" />
         {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
+
 
         <button
           type="submit"
@@ -195,7 +218,7 @@ const CheckoutForm = () => {
             ? "Payment Successful"
             : processing
             ? "Processing..."
-            : `Pay RM ${totalPrice}`}
+            : `Pay RM ${discountedPrice.toFixed(2)}`}
         </button>
       </div>
     </form>
