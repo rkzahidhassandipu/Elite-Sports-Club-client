@@ -23,6 +23,7 @@ const CheckoutForm = () => {
     enabled: !!id,
   });
 
+  
   const { totalPrice } = booking || {};
 
   const handleSubmit = async (e) => {
