@@ -41,6 +41,7 @@ const CheckoutForm = () => {
       console.log("payment", paymentMethod);
     }
 
+
     
   };
   return (
