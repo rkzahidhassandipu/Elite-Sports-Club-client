@@ -1,23 +1,33 @@
 import React from "react";
+import { useQuery } from "@tanstack/react-query";
+import useAxiosSecure from "../../../hooks/useAxiosPublic"; // adjust path if needed
 
 const SpecialOffers = () => {
-  const offers = [
-    {
-      discount: "10% OFF",
-      code: "WELCOME10",
-      description: "Welcome discount for new members",
+  const axiosSecure = useAxiosSecure();
+
+  const { data: offers = [], isLoading, isError } = useQuery({
+    queryKey: ["coupons"],
+    queryFn: async () => {
+      const res = await axiosSecure.get("coupons");
+      return res.data;
     },
-    {
-      discount: "20% OFF",
-      code: "SUMMER20",
-      description: "Summer special discount",
-    },
-    {
-      discount: "15% OFF",
-      code: "WEEKEND15",
-      description: "Weekend booking discount",
-    },
-  ];
+  });
+
+  if (isLoading) {
+    return (
+      <div className="text-center py-10 text-white">
+        Loading special offers...
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="text-center py-10 text-red-400">
+        Failed to load special offers.
+      </div>
+    );
+  }
 
   return (
     <section className="bg-gradient-to-r from-purple-900 via-purple-800 to-purple-900 text-white py-16 px-4">
@@ -31,19 +41,17 @@ const SpecialOffers = () => {
       <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 px-4">
         {offers.map((offer, idx) => (
           <div
-            key={idx}
+            key={offer._id || idx}
             data-aos="zoom-in"
             data-aos-delay={idx * 100}
             className="rounded-lg overflow-hidden shadow-lg cursor-pointer bg-gradient-to-r from-elite-hover1 to-elite-hover2 hover:scale-105 transition-transform duration-300"
           >
             <div className="py-8 text-center">
-              <p className="text-2xl font-extrabold">{offer.discount}</p>
-              <p className="mt-2 text-sm tracking-wider uppercase">
-                {offer.code}
-              </p>
+              <p className="text-2xl font-extrabold">{offer.discount}% OFF</p>
+              <p className="mt-2 text-sm tracking-wider uppercase">{offer.code}</p>
             </div>
             <div className="bg-purple-700/40 py-4 text-sm text-center px-2">
-              {offer.description}
+              {offer.name || "Special offer available now!"}
             </div>
           </div>
         ))}
