@@ -37,7 +37,7 @@ src/
 ├── assets/             # Images, icons, etc.
 ├── App.jsx             # App entry
 └── main.jsx            # Root render with router
-
+```
 
 🔐 Authentication
 
