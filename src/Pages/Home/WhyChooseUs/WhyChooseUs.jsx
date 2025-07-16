@@ -5,22 +5,22 @@ const WhyChooseUs = () => {
     {
       icon: <FaCalendarAlt className="text-4xl text-blue-400" />,
       title: "Easy Booking",
-      desc: "Book your favorite courts with just a few clicks",
+      desc: "Book your favorite courts with just a few clicks.",
     },
     {
       icon: <FaUserFriends className="text-4xl text-blue-400" />,
       title: "Professional Coaching",
-      desc: "Learn from certified professional coaches",
+      desc: "Learn from certified professional coaches.",
     },
     {
       icon: <FaTrophy className="text-4xl text-blue-400" />,
       title: "Tournaments",
-      desc: "Participate in exciting tournaments and competitions",
+      desc: "Participate in exciting tournaments and competitions.",
     },
     {
       icon: <FaStar className="text-4xl text-blue-400" />,
       title: "Premium Facilities",
-      desc: "World-class courts and equipment for the best experience",
+      desc: "World-class courts and equipment for the best experience.",
     },
   ];
 
@@ -30,6 +30,7 @@ const WhyChooseUs = () => {
       id="why-choose-us"
     >
       <div className="max-w-7xl mx-auto text-center">
+        {/* Heading */}
         <h2 className="text-3xl md:text-4xl font-bold mb-4" data-aos="fade-up">
           Why Choose Us?
         </h2>
@@ -42,11 +43,12 @@ const WhyChooseUs = () => {
           achieve your athletic goals.
         </p>
 
+        {/* Features Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
           {features.map((feature, idx) => (
             <div
               key={idx}
-              className="bg-white/5 border border-white/10 backdrop-blur-sm rounded-xl p-6 shadow-md hover:shadow-lg transition-all duration-300"
+              className="bg-white/5 border border-white/10 backdrop-blur-md rounded-xl p-6 shadow-md hover:shadow-xl transition-all duration-300"
               data-aos="zoom-in"
               data-aos-delay={idx * 150}
             >

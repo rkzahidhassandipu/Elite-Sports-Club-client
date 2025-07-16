@@ -6,9 +6,9 @@ const SpecialOffers = () => {
   const axiosSecure = useAxiosSecure();
 
   const { data: offers = [], isLoading, isError } = useQuery({
-    queryKey: ["coupons"],
+    queryKey: ["coupon"],
     queryFn: async () => {
-      const res = await axiosSecure.get("coupons");
+      const res = await axiosSecure.get("coupon");
       return res.data;
     },
   });

@@ -6,6 +6,7 @@ import CourtPopup from "../CourtPopup/CourtPopup";
 import useAuth from "../../../hooks/useAuth";
 import { useNavigate } from "react-router";
 import Loading from "../../../Component/Loading/Loading";
+import { Helmet } from "react-helmet-async";
 
 const Courts = () => {
   const axiosPublic = useAxiosPublic();
@@ -35,7 +36,7 @@ const Courts = () => {
   };
 
   if (isLoading) {
-    return <Loading />
+    return <Loading />;
   }
 
   const totalPages = Math.ceil(courts.length / itemsPerPage);
@@ -44,6 +45,11 @@ const Courts = () => {
 
   return (
     <section className="min-h-screen bg-gradient-to-br from-[#100c2a] via-elite-brand to-[#201b62] text-white py-16 px-4">
+      <Helmet>
+        <title>Available Courts | Elite Sports Club</title>
+        <meta name="description" content="Book your desired sports court easily at Elite Sports Club. View available courts with real-time booking options." />
+      </Helmet>
+
       <div className="max-w-7xl mx-auto">
         <h2 className="text-4xl font-bold text-center mb-10">Available Courts</h2>
 
@@ -53,7 +59,6 @@ const Courts = () => {
           ))}
         </div>
 
-        {/* Pagination Buttons */}
         {totalPages > 1 && (
           <div className="flex justify-center mt-10 space-x-2">
             {Array.from({ length: totalPages }, (_, idx) => (
@@ -73,7 +78,6 @@ const Courts = () => {
         )}
       </div>
 
-      {/* Popup */}
       {isPopupOpen && selectedCourt && (
         <CourtPopup
           isOpen={isPopupOpen}

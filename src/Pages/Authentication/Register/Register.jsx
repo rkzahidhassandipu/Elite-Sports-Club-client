@@ -62,7 +62,7 @@ const Register = () => {
         createdAt: new Date(),
       };
 
-      await axiosPublic.post("/users", userInfo);
+      await axiosPublic.post("users", userInfo);
 
       toast.success("Account created successfully!");
       reset();
@@ -79,7 +79,13 @@ const Register = () => {
 
   // ✅ Show validation errors one-by-one
   const onError = (formErrors) => {
-    const fieldOrder = ["name", "email", "password", "confirmPassword", "profileImage"];
+    const fieldOrder = [
+      "name",
+      "email",
+      "password",
+      "confirmPassword",
+      "profileImage",
+    ];
 
     for (const field of fieldOrder) {
       if (formErrors[field]) {
@@ -91,11 +97,37 @@ const Register = () => {
 
   const handleGoogle = async () => {
     try {
-      await createUserWithGoogle();
+      const userCredential = await createUserWithGoogle(); // Auth success
+      const user = userCredential?.user;
+
+      if (!user?.email) {
+        toast.error("Google sign-in failed: No email found");
+        return;
+      }
+
+      // Check if user already exists
+      const { data: existingUser } = await axiosPublic.get(`exists/users?email=${user.email}`);
+
+
+      if (!existingUser?._id) {
+        // User does not exist, save to DB
+        const newUser = {
+          name: user.displayName || "Unknown",
+          email: user.email,
+          role: "user",
+          createdAt: new Date(),
+        };
+
+        await axiosPublic.post("empty/users", newUser);
+      }
+
       toast.success("Signed in with Google!");
       navigate("/");
     } catch (err) {
-      toast.error("Google sign-in failed");
+      console.error("Google sign-in error:", err);
+      toast.error(
+        err.response?.data?.error || err.message || "Google sign-in failed"
+      );
     }
   };
 
@@ -121,9 +153,10 @@ const Register = () => {
               type="file"
               accept="image/*"
               className="hidden"
-              {...register("profileImage", { required: "Profile image is required" })}
+              {...register("profileImage", {
+                required: "Profile image is required",
+              })}
               onChange={handlePreview}
-
             />
           </label>
           {previewUrl && (

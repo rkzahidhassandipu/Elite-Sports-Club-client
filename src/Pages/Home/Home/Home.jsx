@@ -1,4 +1,5 @@
 import React from 'react'
+import { Helmet } from 'react-helmet-async'
 import Banner from '../Banner/Banner'
 import WhyChooseUs from '../WhyChooseUs/WhyChooseUs'
 import About from '../About/About'
@@ -7,13 +8,20 @@ import VisitUs from '../VisitUs/VisitUs'
 
 const Home = () => {
   return (
-    <div>
-      <Banner />
-      <WhyChooseUs />
-      <About />
-      <SpecialOffers />
-      <VisitUs />
-    </div>
+    <>
+      <Helmet>
+        <title>Home | Elite Sports Club</title>
+        <meta name="description" content="Welcome to Elite Sports Club — where health meets community. Explore our courts, special offers, and more!" />
+      </Helmet>
+
+      <div>
+        <Banner />
+        <WhyChooseUs />
+        <About />
+        <SpecialOffers />
+        <VisitUs />
+      </div>
+    </>
   )
 }
 

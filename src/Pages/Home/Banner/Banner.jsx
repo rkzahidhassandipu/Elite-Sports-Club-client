@@ -36,15 +36,18 @@ const Banner = () => {
       ))}
 
       {/* Overlay */}
-      <div className="absolute inset-0 bg-black/40 z-20"></div>
+      <div className="absolute inset-0 bg-black/50 z-20"></div>
 
       {/* Text Content */}
       <div className="relative z-30 flex flex-col items-center justify-center h-full text-center px-4">
-        <h1 className="text-4xl md:text-5xl font-bold mb-4" data-aos="fade-up">
+        <h1
+          className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4"
+          data-aos="fade-up"
+        >
           Welcome to Elite Sports Club
         </h1>
         <p
-          className="text-lg md:text-xl max-w-2xl mx-auto"
+          className="text-sm sm:text-base md:text-lg max-w-2xl mx-auto"
           data-aos="fade-up"
           data-aos-delay="200"
         >
@@ -52,30 +55,32 @@ const Banner = () => {
           and community spirit.
         </p>
         <div
-          className="flex justify-center gap-4 mt-5"
+          className="flex flex-wrap justify-center gap-4 mt-5"
           data-aos="fade-up"
           data-aos-delay="400"
         >
-          <button className="bg-gradient-to-r from-elite-brand to-elite-hover2 hover:from-elite-hover1 to-elite-hover2 text-white px-6 py-2 rounded font-semibold transition duration-300">
+          <button className="bg-gradient-to-r from-elite-brand to-elite-hover2 hover:from-elite-hover1 to-elite-hover2 text-white px-5 sm:px-6 py-2 rounded font-semibold text-sm sm:text-base transition duration-300">
             Book Now
           </button>
-          <button className="bg-transparent border border-white text-white hover:bg-white hover:text-black px-6 py-2 rounded font-semibold transition duration-300">
+          <button className="bg-transparent border border-white text-white hover:bg-white hover:text-black px-5 sm:px-6 py-2 rounded font-semibold text-sm sm:text-base transition duration-300">
             Learn More
           </button>
         </div>
       </div>
 
-      {/* Dots */}
+      {/* Dots Navigation */}
       <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 z-30 flex gap-2">
         {images.map((_, index) => (
-          <span
+          <button
             key={index}
+            onClick={() => setCurrentIndex(index)}
+            aria-label={`Go to slide ${index + 1}`}
             className={`w-3 h-3 rounded-full transition-all duration-300 ${
               index === currentIndex
                 ? "bg-white scale-125 shadow"
                 : "bg-white/40"
             }`}
-          ></span>
+          ></button>
         ))}
       </div>
     </div>

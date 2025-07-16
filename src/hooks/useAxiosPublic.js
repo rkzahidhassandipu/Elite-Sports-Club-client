@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useEffect } from "react";
 import useAuth from "./useAuth";
+import { useNavigate } from "react-router";
 
 const axiosPublic = axios.create({
   baseURL: "http://localhost:5000/", // or your production URL
@@ -9,6 +10,7 @@ const axiosPublic = axios.create({
 
 const useAxiosPublic = () => {
   const { user, logOut } = useAuth();
+  const navigate = useNavigate()
 
   useEffect(() => {
     // Request interceptor
@@ -26,6 +28,7 @@ const useAxiosPublic = () => {
         if (error.response?.status === 401 || error.response?.status === 403) {
           try {
             await logOut();
+            navigate('/')
             console.log("Signed out due to 401/403 error");
           } catch (err) {
             console.error("Sign-out error:", err);

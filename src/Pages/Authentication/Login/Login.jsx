@@ -3,8 +3,11 @@ import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router";
 import { toast } from "react-toastify";
 import useAuth from "../../../hooks/useAuth";
+import useAxiosPublic from "../../../hooks/useAxiosPublic";
+import { Helmet } from "react-helmet-async";
 
 const Login = () => {
+  const axiosPublic = useAxiosPublic();
   const { login, createUserWithGoogle } = useAuth();
   const navigate = useNavigate();
 
@@ -26,22 +29,66 @@ const Login = () => {
 
   const handleGoogleLogin = async () => {
     try {
-      await createUserWithGoogle();
-      toast.success("Logged in with Google!");
+      const userCredential = await createUserWithGoogle();
+      const user = userCredential?.user;
+
+      if (!user?.email) {
+        toast.error("Google sign-in failed: No email found");
+        return;
+      }
+
+      // Check if user already exists
+      const { data: existingUser } = await axiosPublic.get(
+        `/users/exists?email=${user.email}`
+      );
+
+      if (!existingUser?._id) {
+        // Save new user
+        const newUser = {
+          uid: user.uid,
+          name: user.displayName || "Unknown",
+          email: user.email,
+          role: "user",
+          createdAt: new Date(),
+        };
+        await axiosPublic.post("users", newUser);
+      }
+
+      // Request token from server (cookie or localStorage-based)
+      await axiosPublic.post(
+        "login",
+        { email: user.email },
+        { withCredentials: true }
+      );
+
+      toast.success("Signed in with Google!");
       navigate("/");
     } catch (err) {
-      toast.error("Google login failed");
+      console.error("Google sign-in error:", err);
+      toast.error(
+        err.response?.data?.error || err.message || "Google sign-in failed"
+      );
     }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0f0c29] via-[#302b63] to-[#24243e] text-white p-4">
+      <Helmet>
+        <title>Login | Elite Sports Club</title>
+        <meta
+          name="description"
+          content="Login to Elite Sports Club and manage your court bookings, announcements, and more."
+        />
+      </Helmet>
+
       <form
         onSubmit={handleSubmit(onSubmit)}
         className="w-full max-w-md bg-gradient-to-br from-purple-800/40 to-indigo-700/30 backdrop-blur-md rounded-xl p-8 shadow-2xl space-y-5 border border-purple-700"
       >
         <h2 className="text-2xl font-bold text-center">Welcome Back</h2>
-        <p className="text-center text-sm text-purple-200">Sign in to your account</p>
+        <p className="text-center text-sm text-purple-200">
+          Sign in to your account
+        </p>
 
         <div>
           <label className="text-sm text-purple-300">Email</label>
@@ -68,7 +115,9 @@ const Login = () => {
             className="w-full px-4 py-2 mt-1 rounded-md bg-gray-900 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500"
           />
           {errors.password && (
-            <p className="text-red-400 text-sm mt-1">{errors.password.message}</p>
+            <p className="text-red-400 text-sm mt-1">
+              {errors.password.message}
+            </p>
           )}
         </div>
 
@@ -107,19 +156,6 @@ const Login = () => {
           />
           Continue with Google
         </button>
-
-        <div className="bg-gray-900/80 p-4 rounded-md text-sm mt-4 border border-gray-700">
-          <p className="font-semibold text-purple-300">Demo Accounts:</p>
-          <p>
-            <span className="text-purple-100">Admin:</span> admin@elite.com / admin123
-          </p>
-          <p>
-            <span className="text-purple-100">Member:</span> member@elite.com / member123
-          </p>
-          <p>
-            <span className="text-purple-100">User:</span> user@elite.com / user123
-          </p>
-        </div>
       </form>
     </div>
   );

@@ -1,16 +1,19 @@
-import { Link, NavLink, useNavigate } from "react-router";
+import { Link, NavLink, useNavigate } from "react-router"; // ✅ Corrected import
 import { useState, useEffect, useRef } from "react";
-import { FaTachometerAlt, FaSignOutAlt } from "react-icons/fa";
+import { FaBars, FaTimes, FaSignOutAlt } from "react-icons/fa";
 import useAuth from "../../../hooks/useAuth";
 import { IoIosSettings } from "react-icons/io";
+import { toast } from "react-toastify";
+import useAxiosPublic from "../../../hooks/useAxiosPublic";
 
 const Navbar = () => {
   const { user, logOut } = useAuth();
   const [isDropdownOpen, setDropdownOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
+  const axiosPublic = useAxiosPublic();
 
-  // Close dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -22,45 +25,57 @@ const Navbar = () => {
   }, []);
 
   const handleLogout = async () => {
-    await logOut();
-    navigate("/")
-    setDropdownOpen(false);
+    try {
+      await axiosPublic.get("/logout");
+      await logOut();
+      navigate("/");
+      setDropdownOpen(false);
+      toast.success("Logged out successfully");
+    } catch (error) {
+      console.error("Logout error:", error.response?.data || error.message);
+      toast.error("Logout failed");
+    }
   };
+
+  const navLinks = (
+    <>
+      <NavLink
+        to="/"
+        className={({ isActive }) =>
+          isActive ? "text-blue-300 font-semibold" : "hover:text-blue-400"
+        }
+      >
+        Home
+      </NavLink>
+      <NavLink
+        to="/courts"
+        className={({ isActive }) =>
+          isActive ? "text-blue-300 font-semibold" : "hover:text-blue-400"
+        }
+      >
+        Courts
+      </NavLink>
+    </>
+  );
 
   return (
     <div className="sticky top-0 z-50 backdrop-blur bg-gradient-to-r from-elite-secondary via-elite-primary to-elite-brand bg-opacity-80 shadow-md">
-      <div className="w-4/5 mx-auto px-4 py-5 flex items-center">
+      <div className="w-full max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
         {/* Logo */}
         <Link to="/">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-gradient-to-r from-elite-brand to-elite-primary px-3 text-sm font-bold text-white flex items-center justify-center rounded-md">
               ESC
             </div>
-            <span className="text-xl font-semibold text-white">
+            <span className="text-xl font-semibold text-white hidden sm:inline">
               Elite Sports Club
             </span>
           </div>
         </Link>
 
-        {/* Right Side Items */}
-        <div className="flex items-center gap-6 ml-auto text-white relative">
-          <NavLink
-            to="/"
-            className={({ isActive }) =>
-              isActive ? "text-blue-300 font-semibold" : "hover:text-blue-400"
-            }
-          >
-            Home
-          </NavLink>
-          <NavLink
-            to="/courts"
-            className={({ isActive }) =>
-              isActive ? "text-blue-300 font-semibold" : "hover:text-blue-400"
-            }
-          >
-            Courts
-          </NavLink>
-
+        {/* Desktop Navigation */}
+        <div className="hidden md:flex items-center gap-6 text-white">
+          {navLinks}
           {user ? (
             <div className="relative" ref={dropdownRef}>
               <img
@@ -72,7 +87,7 @@ const Navbar = () => {
               {isDropdownOpen && (
                 <div className="absolute right-0 mt-3 w-64 bg-gradient-to-r from-elite-primary to-elite-hover1 text-white rounded shadow-lg z-50 p-4 space-y-3">
                   <div className="text-sm">
-                    <p className="font-semibold text-white">
+                    <p className="font-semibold">
                       {user.displayName || "User"}
                     </p>
                     <p className="text-xs text-blue-200">{user.email}</p>
@@ -108,7 +123,58 @@ const Navbar = () => {
             </>
           )}
         </div>
+
+        {/* Mobile Menu Icon */}
+        <div className="md:hidden">
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="text-white text-xl"
+          >
+            {mobileMenuOpen ? <FaTimes /> : <FaBars />}
+          </button>
+        </div>
       </div>
+
+      {/* Mobile Menu Dropdown */}
+      {mobileMenuOpen && (
+        <div className="md:hidden px-6 py-4 bg-elite-primary text-white space-y-4 transition-all duration-300 flex flex-col">
+          {navLinks}
+          {user ? (
+            <>
+              <Link
+                to="/dashboard/profile"
+                onClick={() => setMobileMenuOpen(false)}
+                className="hover:text-blue-300"
+              >
+                Dashboard
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="text-red-300 hover:text-red-500 text-left"
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <NavLink
+                to="/login"
+                onClick={() => setMobileMenuOpen(false)}
+                className="hover:text-blue-300"
+              >
+                Login
+              </NavLink>
+              <NavLink
+                to="/register"
+                onClick={() => setMobileMenuOpen(false)}
+                className="bg-gradient-to-r w-1/4 from-elite-secondary to-elite-hover1 px-4 py-2 rounded hover:from-elite-hover2 hover:to-elite-hover1"
+              >
+                Register
+              </NavLink>
+            </>
+          )}
+        </div>
+      )}
     </div>
   );
 };
