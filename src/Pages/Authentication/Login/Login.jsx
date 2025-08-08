@@ -27,49 +27,41 @@ const Login = () => {
     }
   };
 
-  const handleGoogleLogin = async () => {
-    try {
-      const userCredential = await createUserWithGoogle();
-      const user = userCredential?.user;
-
-      if (!user?.email) {
-        toast.error("Google sign-in failed: No email found");
-        return;
+  const handleGoogle = async () => {
+      try {
+        const userCredential = await createUserWithGoogle(); // Auth success
+        const user = userCredential?.user;
+  
+        if (!user?.email) {
+          toast.error("Google sign-in failed: No email found");
+          return;
+        }
+  
+        // Check if user already exists
+        const { data: existingUser } = await axiosPublic.get(`exists/users?email=${user.email}`);
+  
+  
+        if (!existingUser?._id) {
+          // User does not exist, save to DB
+          const newUser = {
+            name: user.displayName || "Unknown",
+            email: user.email,
+            role: "user",
+            createdAt: new Date(),
+          };
+  
+          await axiosPublic.post("empty/users", newUser);
+        }
+  
+        toast.success("Signed in with Google!");
+        navigate("/");
+      } catch (err) {
+        console.error("Google sign-in error:", err);
+        toast.error(
+          err.response?.data?.error || err.message || "Google sign-in failed"
+        );
       }
-
-      // Check if user already exists
-      const { data: existingUser } = await axiosPublic.get(
-        `/users/exists?email=${user.email}`
-      );
-
-      if (!existingUser?._id) {
-        // Save new user
-        const newUser = {
-          uid: user.uid,
-          name: user.displayName || "Unknown",
-          email: user.email,
-          role: "user",
-          createdAt: new Date(),
-        };
-        await axiosPublic.post("users", newUser);
-      }
-
-      // Request token from server (cookie or localStorage-based)
-      await axiosPublic.post(
-        "login",
-        { email: user.email },
-        { withCredentials: true }
-      );
-
-      toast.success("Signed in with Google!");
-      navigate("/");
-    } catch (err) {
-      console.error("Google sign-in error:", err);
-      toast.error(
-        err.response?.data?.error || err.message || "Google sign-in failed"
-      );
-    }
-  };
+    };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0f0c29] via-[#302b63] to-[#24243e] text-white p-4">
@@ -146,7 +138,7 @@ const Login = () => {
 
         <button
           type="button"
-          onClick={handleGoogleLogin}
+          onClick={handleGoogle}
           className="w-full py-2 border border-gray-500 rounded-md hover:bg-gray-800 transition flex items-center justify-center gap-2"
         >
           <img

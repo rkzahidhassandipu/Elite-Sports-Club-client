@@ -20,7 +20,7 @@ import MakeAnnouncement from "../Pages/Dashboard/Admin/MakeAnnouncement/MakeAnno
 import ManageCoupons from "../Pages/Dashboard/Admin/ManageCoupons/ManageCoupons";
 import Announcements from "../Pages/Dashboard/Announcements/Announcements";
 import AdminProfile from "../Pages/Dashboard/Admin/AdminProfile/AdminProfile";
-import ProfileRoute from "./ProfileRoute";
+import PrivateRouter from "../Router/PrivateRouter"
 
 export const router = createBrowserRouter([
   {
@@ -40,15 +40,23 @@ export const router = createBrowserRouter([
 
   {
     path: 'dashboard',
-    Component: DashboardLayout,
+    element: (
+    <PrivateRouter>
+      <DashboardLayout />
+    </PrivateRouter>
+  ),
     children:[
       {
         path: "pending-bookings",
         Component: PendingBookings
       },
       {
+        path: "admin/profile",
+        Component: AdminProfile
+      },
+      {
         path: "profile",
-        Component: ProfileRoute
+        Component: Profile
       },
       {
         path: "approved-bookings",

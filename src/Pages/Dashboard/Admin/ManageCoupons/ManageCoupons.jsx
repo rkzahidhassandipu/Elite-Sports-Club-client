@@ -2,17 +2,17 @@ import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
-import useAxiosSecure from "../../../../hooks/useAxiosPublic";
+import useAxiosPublic from "../../../../hooks/useAxiosPublic";
 
 const ManageCoupons = () => {
   const { register, handleSubmit, reset, setValue } = useForm();
-  const axiosSecure = useAxiosSecure();
+  const axiosPublic = useAxiosPublic();
   const [coupons, setCoupons] = useState([]);
   const [editId, setEditId] = useState(null);
 
   const fetchCoupons = async () => {
     try {
-      const res = await axiosSecure.get("/coupons");
+      const res = await axiosPublic.get("coupon");
       if (Array.isArray(res.data)) {
         setCoupons(res.data);
       } else {
@@ -36,7 +36,7 @@ const ManageCoupons = () => {
 
     try {
       if (editId) {
-        const res = await axiosSecure.patch(`coupons/${editId}`, payload);
+        const res = await axiosPublic.patch(`coupons/${editId}`, payload);
         if (res.data.modifiedCount > 0) {
           toast.success("✅ Coupon updated!");
           fetchCoupons();
@@ -46,7 +46,7 @@ const ManageCoupons = () => {
           toast.error("❌ Failed to update.");
         }
       } else {
-        const res = await axiosSecure.post("coupons", payload);
+        const res = await axiosPublic.post("coupons", payload);
         if (res.data.insertedId) {
           toast.success("✅ Coupon added!");
           fetchCoupons();
@@ -77,7 +77,7 @@ const ManageCoupons = () => {
 
     if (confirm.isConfirmed) {
       try {
-        const res = await axiosSecure.delete(`coupons/${id}`);
+        const res = await axiosPublic.delete(`coupons/${id}`);
         if (res.data.deletedCount > 0) {
           toast.success("🗑️ Coupon deleted.");
           fetchCoupons();

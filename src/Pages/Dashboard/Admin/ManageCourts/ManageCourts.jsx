@@ -35,7 +35,7 @@ const ManageCourts = () => {
   });
 
   const deleteCourtMutation = useMutation({
-    mutationFn: (id) => axiosPublic.delete(`/courts/${id}`),
+    mutationFn: (id) => axiosPublic.delete(`courts/${id}`),
     onSuccess: () => {
       Swal.fire("🗑️ Deleted", "Court removed", "info");
       queryClient.invalidateQueries(["courts"]);

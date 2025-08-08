@@ -39,7 +39,7 @@ const CheckoutForm = () => {
   // Validate coupon
   const handleApplyCoupon = async () => {
     try {
-      const res = await axiosPublic.get(`/coupons/validate?code=${coupon}`);
+      const res = await axiosPublic.get(`coupons/validate?code=${coupon}`);
       setDiscountInfo(res.data);
       toast.success(`Coupon "${res.data.code}" applied!`);
     } catch (err) {
@@ -96,7 +96,7 @@ const CheckoutForm = () => {
         setPaymentSuccess(true);
 
         // Save payment to DB
-        await axiosPublic.post("/payments/save", {
+        await axiosPublic.post("payments/save", {
           name: user?.displayName || "Anonymous",
           bookingId: booking._id,
           userEmail: booking.userEmail,

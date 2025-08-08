@@ -93,7 +93,7 @@ const Sidebar = () => {
           <>
           
             {navItem(
-              "/dashboard/profile",
+              "/dashboard/admin/profile",
               "Admin Profile",
               <FaUserShield />
             )}

@@ -36,7 +36,7 @@ const BookingApproval = () => {
   // Reject mutation (DELETE)
   const rejectMutation = useMutation({
     mutationFn: async (id) => {
-      const res = await axiosPublic.delete(`/bookings/${id}`);
+      const res = await axiosPublic.delete(`bookings/${id}`);
       return res.data;
     },
     onSuccess: () => {

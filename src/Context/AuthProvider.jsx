@@ -49,7 +49,7 @@ const AuthProvider = ({ children }) => {
       try {
         const userData = { email: currentUser.email };
         const res = await axios.post(
-          "http://localhost:5000/jwt", // 👈 Localhost backend
+          "https://elite-sports-club-server.onrender.com/jwt", // 👈 Localhost backend
           userData,
           { withCredentials: true }   // 👈 Important for sending/receiving cookies
         );
@@ -59,7 +59,7 @@ const AuthProvider = ({ children }) => {
       }
     } else {
       // Optional: clear JWT cookie on logout
-      await axios.get("http://localhost:5000/logout", { withCredentials: true });
+      await axios.get("https://elite-sports-club-server.onrender.com/logout", { withCredentials: true });
     }
 
     console.log("Auth state changed:", currentUser);

@@ -14,14 +14,16 @@ import {
 const COLORS = ['#00C49F', '#FFBB28', '#FF8042'];
 
 const AdminProfile = () => {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
+  console.log("user",user)
+  console.log("loading", loading)
   const axiosPublic = useAxiosPublic();
 
   // Get all courts
   const { data: courts = [], isLoading: courtsLoading } = useQuery({
     queryKey: ["courts"],
     queryFn: async () => {
-      const res = await axiosPublic.get("/courts");
+      const res = await axiosPublic.get("courts");
       return res.data;
     },
   });
@@ -33,6 +35,7 @@ const AdminProfile = () => {
       const res = await axiosPublic.get("users");
       return res.data;
     },
+    enabled: !!user.email,
   });
 
   if (courtsLoading || usersLoading) return <Loading />;
