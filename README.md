@@ -6,7 +6,7 @@ This is the **frontend** of the Elite Sports Club platform. It’s built with **
 
 ## 🚀 Live Site
 
-👉 [Visit Frontend Live Site](https://your-frontend-live-url.web.app)
+👉 [Visit Frontend Live Site](https://assignment-12-a57a1.web.app)
 
 ---
 
