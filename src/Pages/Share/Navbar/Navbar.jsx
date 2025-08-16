@@ -55,6 +55,14 @@ const Navbar = () => {
       >
         Courts
       </NavLink>
+      <NavLink
+        to="/contact"
+        className={({ isActive }) =>
+          isActive ? "text-blue-300 font-semibold" : "hover:text-blue-400"
+        }
+      >
+        Contact
+      </NavLink>
     </>
   );
 
