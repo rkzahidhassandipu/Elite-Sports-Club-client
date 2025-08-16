@@ -22,7 +22,7 @@ const MembershipSection = () => {
           with the finest sports, recreation and social facilities.
         </p>
         <a
-          href="https://raintree.com.my/how-to-join/"
+          href="/courts"
           className="inline-block bg-green-600 hover:bg-green-700 transition px-6 py-3 rounded-lg font-semibold shadow-lg"
         >
           Explore Booking
