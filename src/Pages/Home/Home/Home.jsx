@@ -20,8 +20,8 @@ const Home = () => {
         <WhyChooseUs />
         <About />
         <SpecialOffers />
-        <VisitUs />
         <MembershipSection />
+        {/* <VisitUs /> */}
       </div>
     </>
   )
