@@ -23,7 +23,7 @@ const MembershipSection = () => {
         </p>
         <a
           href="/courts"
-          className="inline-block bg-green-600 hover:bg-green-700 transition px-6 py-3 rounded-lg font-semibold shadow-lg"
+          className="inline-block bg-gradient-to-r from-purple-900 via-purple-800 to-purple-900 hover:bg-blue-700 transition px-6 py-3 rounded-lg font-semibold shadow-lg"
         >
           Explore Booking
         </a>
