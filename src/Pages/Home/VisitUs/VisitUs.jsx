@@ -15,37 +15,7 @@ const VisitUs = () => {
         </div>
 
         {/* Grid */}
-        <div className="grid gap-8 md:grid-cols-2">
-          {/* Contact Info */}
-          <div
-            className="bg-purple-700/30 backdrop-blur-sm rounded-lg p-6 md:p-8 border border-purple-500/30 shadow-md"
-            data-aos="fade-right"
-          >
-            <h3 className="text-xl font-semibold mb-6">Contact Information</h3>
-            <div className="space-y-6 text-left text-sm md:text-base">
-              <div className="flex items-start gap-3">
-                <FaMapMarkerAlt className="text-blue-400 text-lg mt-1" />
-                <div>
-                  <h4 className="font-semibold">Address</h4>
-                  <p>123 Sports Avenue, Elite District, City 12345</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <FaPhoneAlt className="text-blue-400 text-lg mt-1" />
-                <div>
-                  <h4 className="font-semibold">Phone</h4>
-                  <p>+1 (555) 123-4567</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <FaEnvelope className="text-blue-400 text-lg mt-1" />
-                <div>
-                  <h4 className="font-semibold">Email</h4>
-                  <p>info@elitesportsclub.com</p>
-                </div>
-              </div>
-            </div>
-          </div>
+        <div className="grid gap-8 grid-cols-1">
 
           {/* Map Placeholder */}
           <div

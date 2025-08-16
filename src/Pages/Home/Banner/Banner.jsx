@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import AOS from "aos";
 import "aos/dist/aos.css";
+import { Link } from "react-router";
 
 const Banner = () => {
   const images = [
@@ -59,9 +60,11 @@ const Banner = () => {
           data-aos="fade-up"
           data-aos-delay="400"
         >
+         <Link to='/courts'>
           <button className="bg-gradient-to-r from-elite-brand to-elite-hover2 hover:from-elite-hover1 to-elite-hover2 text-white px-5 sm:px-6 py-2 rounded font-semibold text-sm sm:text-base transition duration-300">
             Book Now
           </button>
+         </Link>
           <button className="bg-transparent border border-white text-white hover:bg-white hover:text-black px-5 sm:px-6 py-2 rounded font-semibold text-sm sm:text-base transition duration-300">
             Learn More
           </button>
