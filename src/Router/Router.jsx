@@ -21,6 +21,7 @@ import ManageCoupons from "../Pages/Dashboard/Admin/ManageCoupons/ManageCoupons"
 import Announcements from "../Pages/Dashboard/Announcements/Announcements";
 import AdminProfile from "../Pages/Dashboard/Admin/AdminProfile/AdminProfile";
 import PrivateRouter from "../Router/PrivateRouter"
+import Contact from "../Pages/Contact/contact/Contact";
 
 export const router = createBrowserRouter([
   {
@@ -34,6 +35,10 @@ export const router = createBrowserRouter([
       {
         path: 'courts',
         Component: Courts,
+      },
+      {
+        path: 'contact',
+        Component: Contact,
       },
     ],
   },
